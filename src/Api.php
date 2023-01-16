@@ -309,7 +309,7 @@ class Api
      */
     private function buildGetRequest(string $url, array $options) {
 
-        $queryParams = [];
+        /*$queryParams = [];
         $queryNew = [];
         if ($options['query']) {
             foreach($options['query'] as $key => $value) {
@@ -323,7 +323,8 @@ class Api
         }
         $options['query'] = $queryNew;
         $url .= "?query=".implode(" AND ", $queryParams);
-
+	*/
+	$options['debug'] = true;
         return $this->client->get($url, $options)->getBody();
     }
 
