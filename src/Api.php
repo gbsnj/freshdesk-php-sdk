@@ -279,7 +279,7 @@ class Api
         try {
             switch ($method) {
                 case 'GET':
-                    return json_decode($this->client->get($url, $options)->getBody(), true);
+                    return json_decode($this->buildGetRequest($url, $options), true);
                 case 'POST':
                     return json_decode($this->client->post($url, $options)->getBody(), true);
                 case 'PUT':
@@ -294,6 +294,38 @@ class Api
         }
     }
 
+     /**
+     * Build get Url
+     *
+     * @internal
+     *
+     * @param $url
+     * @param $options
+     * @return mixed|null
+     * @throws AccessDeniedException
+     * @throws ApiException
+     * @throws AuthenticationException
+     * @throws ConflictingStateException
+     */
+    private function buildGetRequest(string $url, array $options) {
+
+        $queryParams = [];
+        $queryNew = [];
+        if ($options['query']) {
+            foreach($options['query'] as $key => $value) {
+                if ($key == "page" || $key == "per_page") {
+                    $queryNew[$key] = $value;
+                } else {
+                    $queryParams[] = $key.":".$value;
+                }
+            }
+            
+        }
+        $options['query'] = $queryNew;
+        $url .= "?query=".implode(" AND ", $queryParams);
+
+        return $this->client->get($url, $options)->getBody();
+    }
 
     /**
      * @param $apiKey
