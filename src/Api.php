@@ -31,6 +31,7 @@ use Freshdesk\Resources\TimeEntry;
 use Freshdesk\Resources\Topic;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7\Request;
 
 /**
  * Class for interacting with the Freshdesk Api
@@ -176,6 +177,7 @@ class Api
      * @var string
      */
     private $baseUrl;
+    
 
     /**
      * Constructs a new api instance
@@ -195,7 +197,6 @@ class Api
                 'auth' => [$apiKey, 'X']
             ]
         );
-
         $this->setupResources();
     }
 
@@ -256,7 +257,6 @@ class Api
         }
 
         $url = $this->baseUrl . $endpoint;
-
         return $this->performRequest($method, $url, $options);
     }
 
@@ -279,7 +279,7 @@ class Api
         try {
             switch ($method) {
                 case 'GET':
-                    return json_decode($this->buildGetRequest($url, $options), true);
+                    return json_decode($this->client->get($url, $options)->getBody(), true);
                 case 'POST':
                     return json_decode($this->client->post($url, $options)->getBody(), true);
                 case 'PUT':
@@ -292,40 +292,6 @@ class Api
         } catch (RequestException $e) {
             throw ApiException::create($e);
         }
-    }
-
-     /**
-     * Build get Url
-     *
-     * @internal
-     *
-     * @param $url
-     * @param $options
-     * @return mixed|null
-     * @throws AccessDeniedException
-     * @throws ApiException
-     * @throws AuthenticationException
-     * @throws ConflictingStateException
-     */
-    private function buildGetRequest(string $url, array $options) {
-
-        /*$queryParams = [];
-        $queryNew = [];
-        if ($options['query']) {
-            foreach($options['query'] as $key => $value) {
-                if ($key == "page" || $key == "per_page") {
-                    $queryNew[$key] = $value;
-                } else {
-                    $queryParams[] = $key.":".$value;
-                }
-            }
-            
-        }
-        $options['query'] = $queryNew;
-        $url .= "?query=".implode(" AND ", $queryParams);
-	*/
-	$options['debug'] = true;
-        return $this->client->get($url, $options)->getBody();
     }
 
     /**
